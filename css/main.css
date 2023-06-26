@@ -110,7 +110,7 @@ a {
   font-size: 1.2rem;
 }
 
-.scroll--section__2 .main--message {
+#scroll--section__2 .main--message {
   font-size: 3.5rem;
 }
 
@@ -131,7 +131,7 @@ a {
 
 .desc--message {
   font-weight: bold;
-  width: 50%;
+  width: 45%;
   opacity: 0;
 }
 
