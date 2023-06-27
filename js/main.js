@@ -100,8 +100,15 @@ const sceneInfo = [
     obj: {
       container: document.querySelector('#scroll--section__3'),
       canvasCaption: document.querySelector('.canvas-caption'),
+      canvas: document.querySelector('.image--blend__canvas'),
+      context: document.querySelector('.image--blend__canvas').getContext('2d'),
+      imagesPath: ['./images/blend1.jpeg', './images/blend2.jpeg'],
+      images: [],
     },
-    values: {},
+    values: {
+      rect1X: [0, 0, { start: 0, end: 0 }],
+      rect2X: [0, 0, { start: 0, end: 0 }],
+    },
   },
 ];
 
@@ -118,7 +125,12 @@ function setCanvasImages() {
     imgElem2.src = `../video/002/IMG_${7027 + i}.JPG`;
     sceneInfo[2].obj.videoImages.push(imgElem2);
   }
-  // console.log(sceneInfo[0].obj.videoImages);
+  let imgElem3;
+  for (let i = 0; i < sceneInfo[3].obj.imagesPath.length; i++) {
+    imgElem3 = document.createElement('img');
+    imgElem3.src = sceneInfo[3].obj.imagesPath[i];
+    sceneInfo[3].obj.images.push(imgElem3);
+  }
 }
 setCanvasImages();
 
@@ -359,6 +371,22 @@ function playAnimation() {
 
       break;
     case 3:
+      const heightRatio = window.innerHeight / obj.canvas.height;
+      const widthRatio = window.innerWidth / obj.canvas.width;
+      let canvasScaleRatio;
+
+      if (widthRatio <= heightRatio) {
+        canvasScaleRatio = heightRatio;
+        console.log('높기준');
+      } else {
+        canvasScaleRatio = widthRatio;
+        console.log('넢기준');
+      }
+      obj.canvas.style.transform = `scale(${canvasScaleRatio})`;
+      obj.context.drawImage(obj.images[0], 0, 0);
+
+      const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+      const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
       break;
   }
 }
