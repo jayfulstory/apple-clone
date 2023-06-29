@@ -377,16 +377,36 @@ function playAnimation() {
 
       if (widthRatio <= heightRatio) {
         canvasScaleRatio = heightRatio;
-        console.log('높기준');
+        // console.log('높기준');
       } else {
         canvasScaleRatio = widthRatio;
-        console.log('넢기준');
+        // console.log('넢기준');
       }
       obj.canvas.style.transform = `scale(${canvasScaleRatio})`;
       obj.context.drawImage(obj.images[0], 0, 0);
 
       const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
       const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+
+      const whiteRectWidth = recalculatedInnerWidth * 0.15;
+      values.rect1X[0] = (obj.canvas.width - recalculatedInnerWidth) / 2;
+      values.rect1X[1] = values.rect1X[0] - whiteRectWidth;
+      values.rect2X[0] =
+        values.rect1X[0] + recalculatedInnerWidth - whiteRectWidth;
+      values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
+
+      obj.context.fillRect(
+        parseInt(values.rect1X[0]),
+        0,
+        parseInt(whiteRectWidth),
+        obj.canvas.height
+      );
+      obj.context.fillRect(
+        parseInt(values.rect2X[0]),
+        0,
+        parseInt(whiteRectWidth),
+        obj.canvas.height
+      );
       break;
   }
 }
