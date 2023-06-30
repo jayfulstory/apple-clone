@@ -76,6 +76,7 @@ a {
   margin-left: 2em;
 }
 .scroll--section {
+  position: relative;
   padding-top: 50vh;
 }
 

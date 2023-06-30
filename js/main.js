@@ -108,6 +108,7 @@ const sceneInfo = [
     values: {
       rect1X: [0, 0, { start: 0, end: 0 }],
       rect2X: [0, 0, { start: 0, end: 0 }],
+      rectStartY: 0,
     },
   },
 ];
@@ -387,6 +388,14 @@ function playAnimation() {
 
       const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
       const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+      if (!values.rectStartY) {
+        // values.rectStartY = obj.canvas.getBoundingClientRect().top;
+        values.rectStartY = obj.canvas.offsetTop;
+        console.log(values.rectStartY);
+        values.rect1X[2].end = values.rectStartY / scrollHeight;
+        values.rect2X[2].end = values.rectStartY / scrollHeight;
+        console.log(values.rect1X[2].end, values.rect2X[2].end);
+      }
 
       const whiteRectWidth = recalculatedInnerWidth * 0.15;
       values.rect1X[0] = (obj.canvas.width - recalculatedInnerWidth) / 2;
