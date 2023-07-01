@@ -384,14 +384,19 @@ function playAnimation() {
         // console.log('넢기준');
       }
       obj.canvas.style.transform = `scale(${canvasScaleRatio})`;
+      obj.context.fillStyle = 'white';
       obj.context.drawImage(obj.images[0], 0, 0);
 
       const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
       const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
       if (!values.rectStartY) {
         // values.rectStartY = obj.canvas.getBoundingClientRect().top;
-        values.rectStartY = obj.canvas.offsetTop;
-        console.log(values.rectStartY);
+        values.rectStartY =
+          obj.canvas.offsetTop +
+          (obj.canvas.height - obj.canvas.height * canvasScaleRatio) / 2;
+        // console.log(values.rectStartY);
+        values.rect1X[2].start = window.innerHeight / 4 / scrollHeight;
+        values.rect2X[2].start = window.innerHeight / 4 / scrollHeight;
         values.rect1X[2].end = values.rectStartY / scrollHeight;
         values.rect2X[2].end = values.rectStartY / scrollHeight;
         console.log(values.rect1X[2].end, values.rect2X[2].end);
@@ -405,13 +410,13 @@ function playAnimation() {
       values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
 
       obj.context.fillRect(
-        parseInt(values.rect1X[0]),
+        parseInt(calcValues(values.rect1X, currentY)),
         0,
         parseInt(whiteRectWidth),
         obj.canvas.height
       );
       obj.context.fillRect(
-        parseInt(values.rect2X[0]),
+        parseInt(calcValues(values.rect2X, currentY)),
         0,
         parseInt(whiteRectWidth),
         obj.canvas.height
