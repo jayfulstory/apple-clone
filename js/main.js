@@ -99,7 +99,7 @@ const sceneInfo = [
     scrollHeight: 0,
     obj: {
       container: document.querySelector('#scroll--section__3'),
-      canvasCaption: document.querySelector('.canvas-caption'),
+      canvasCaption: document.querySelector('.canvas--caption'),
       canvas: document.querySelector('.image--blend__canvas'),
       context: document.querySelector('.image--blend__canvas').getContext('2d'),
       imagesPath: ['./images/blend1.jpeg', './images/blend2.jpeg'],
@@ -108,6 +108,10 @@ const sceneInfo = [
     values: {
       rect1X: [0, 0, { start: 0, end: 0 }],
       rect2X: [0, 0, { start: 0, end: 0 }],
+      blendHeight: [0, 0, { start: 0, end: 0 }],
+      canvas_scale: [0, 0, { start: 0, end: 0 }],
+      canvasCaption_opacity: [0.5, 1, { start: 0, end: 0 }],
+      canvasCaption_translateY: [20, 0, { start: 0, end: 0 }],
       rectStartY: 0,
     },
   },
@@ -134,6 +138,14 @@ function setCanvasImages() {
   }
 }
 setCanvasImages();
+
+function checkMenu() {
+  if (scrollY > 44) {
+    document.body.classList.add('local--nav__sticky');
+  } else {
+    document.body.classList.remove('local--nav__sticky');
+  }
+}
 
 function setLayout() {
   for (let i = 0; i < sceneInfo.length; i++) {
@@ -369,9 +381,48 @@ function playAnimation() {
           currentY
         )})`;
       }
+      if (scrollRatio > 0.9) {
+        const obj = sceneInfo[3].obj;
+        const values = sceneInfo[3].values;
+        const heightRatio = window.innerHeight / obj.canvas.height;
+        const widthRatio = window.innerWidth / obj.canvas.width;
+        let canvasScaleRatio;
 
+        if (widthRatio <= heightRatio) {
+          canvasScaleRatio = heightRatio;
+        } else {
+          canvasScaleRatio = widthRatio;
+        }
+        obj.canvas.style.transform = `scale(${canvasScaleRatio})`;
+        obj.context.fillStyle = 'white';
+        obj.context.drawImage(obj.images[0], 0, 0);
+
+        const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+        const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+
+        const whiteRectWidth = recalculatedInnerWidth * 0.15;
+        values.rect1X[0] = (obj.canvas.width - recalculatedInnerWidth) / 2;
+        values.rect1X[1] = values.rect1X[0] - whiteRectWidth;
+        values.rect2X[0] =
+          values.rect1X[0] + recalculatedInnerWidth - whiteRectWidth;
+        values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
+
+        obj.context.fillRect(
+          parseInt(values.rect1X[0]),
+          0,
+          parseInt(whiteRectWidth),
+          obj.canvas.height
+        );
+        obj.context.fillRect(
+          parseInt(values.rect2X[0]),
+          0,
+          parseInt(whiteRectWidth),
+          obj.canvas.height
+        );
+      }
       break;
     case 3:
+      let step = 0;
       const heightRatio = window.innerHeight / obj.canvas.height;
       const widthRatio = window.innerWidth / obj.canvas.width;
       let canvasScaleRatio;
@@ -394,12 +445,11 @@ function playAnimation() {
         values.rectStartY =
           obj.canvas.offsetTop +
           (obj.canvas.height - obj.canvas.height * canvasScaleRatio) / 2;
-        // console.log(values.rectStartY);
         values.rect1X[2].start = window.innerHeight / 4 / scrollHeight;
         values.rect2X[2].start = window.innerHeight / 4 / scrollHeight;
         values.rect1X[2].end = values.rectStartY / scrollHeight;
         values.rect2X[2].end = values.rectStartY / scrollHeight;
-        console.log(values.rect1X[2].end, values.rect2X[2].end);
+        // console.log(values.rect1X[2].end, values.rect2X[2].end);
       }
 
       const whiteRectWidth = recalculatedInnerWidth * 0.15;
@@ -421,6 +471,75 @@ function playAnimation() {
         parseInt(whiteRectWidth),
         obj.canvas.height
       );
+      if (scrollRatio < values.rect1X[2].end) {
+        // console.log('TOPが0じゃない');
+        step = 1;
+        obj.canvas.classList.remove('sticky');
+      } else {
+        // console.log('TOP0');
+        // imageBlendY: [0, 0, { start: 0, end: 0 }];
+        step = 2;
+        values.blendHeight[0] = 0;
+        values.blendHeight[1] = obj.canvas.height;
+        values.blendHeight[2].start = values.rect1X[2].end;
+        values.blendHeight[2].end = values.blendHeight[2].start + 0.2;
+        const blendHeight = calcValues(values.blendHeight, currentY);
+        obj.context.drawImage(
+          obj.images[1],
+          0,
+          obj.canvas.height - blendHeight,
+          obj.canvas.width,
+          blendHeight,
+          0,
+          obj.canvas.height - blendHeight,
+          obj.canvas.width,
+          blendHeight
+        );
+        obj.canvas.classList.add('sticky');
+        obj.canvas.style.top = `${
+          -(obj.canvas.height - obj.canvas.height * canvasScaleRatio) / 2
+        }px`;
+        if (scrollRatio > values.blendHeight[2].end) {
+          // console.log('transform');
+          step = 3;
+          values.canvas_scale[0] = canvasScaleRatio;
+          values.canvas_scale[1] =
+            document.body.offsetWidth / (1.5 * obj.canvas.width);
+          values.canvas_scale[2].start = values.blendHeight[2].end;
+          values.canvas_scale[2].end = values.canvas_scale[2].start + 0.2;
+
+          obj.canvas.style.transform = `scale(${calcValues(
+            values.canvas_scale,
+            currentY
+          )})`;
+          obj.canvas.style.marginTop = 0;
+        }
+        if (
+          scrollRatio > values.canvas_scale[2].end &&
+          values.canvas_scale[2].end > 0
+        ) {
+          // console.log('start scroll');
+          obj.canvas.classList.remove('sticky');
+          obj.canvas.style.marginTop = `${scrollHeight * 0.4}px`;
+
+          values.canvasCaption_opacity[2].start = values.canvas_scale[2].end;
+          values.canvasCaption_opacity[2].end =
+            values.canvasCaption_opacity[2].start + 0.1;
+          values.canvasCaption_translateY[2].start =
+            values.canvasCaption_opacity[2].start;
+          values.canvasCaption_translateY[2].end =
+            values.canvasCaption_opacity[2].end;
+
+          obj.canvasCaption.style.opacity = calcValues(
+            values.canvasCaption_opacity,
+            currentY
+          );
+          obj.canvasCaption.style.transform = `translate3d(0, ${calcValues(
+            values.canvasCaption_translateY,
+            currentY
+          )}%, 0)`;
+        }
+      }
       break;
   }
 }
@@ -449,6 +568,7 @@ function scrollLoof() {
 window.addEventListener('scroll', () => {
   y = scrollY;
   scrollLoof();
+  checkMenu();
 });
 // window.addEventListener('DOMContentLoaded', setLayout);
 window.addEventListener('load', () => {

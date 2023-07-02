@@ -48,6 +48,13 @@ a {
   border-bottom: 1px solid #bbb;
 }
 
+.local--nav__sticky .local--nav {
+  position: fixed;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: saturate(180%) blur(15px);
+}
+
 .global--nav__links,
 .local--nav__links {
   height: 100%;
@@ -132,7 +139,7 @@ a {
 }
 
 .sticky--elem.desc--message {
-  width: 45%;
+  width: 30%;
   font-weight: bold;
   opacity: 0;
 }
@@ -165,7 +172,7 @@ a {
 
 .canvas--caption {
   max-width: 1000px;
-  margin: 0 auto;
+  margin: -7em auto 0;
   padding: 0 1rem;
   font-size: 1.2rem;
   color: var(--font-color-gray);
@@ -206,6 +213,11 @@ a {
   left: 50%;
 }
 
+.image--blend__canvas.sticky {
+  position: fixed;
+  top: 0;
+}
+
 #scroll--section__3 {
   display: flex;
   flex-direction: column;
@@ -223,6 +235,7 @@ a {
     font-size: 4vw;
   }
   .description {
+    padding: 0;
     font-size: 2rem;
   }
   #scroll--section__2 .main--message {
@@ -234,7 +247,6 @@ a {
   .sticky--elem.desc--message {
     width: 20%;
   }
-
   #scroll--section__2 .b {
     top: 20%;
     left: 53%;
