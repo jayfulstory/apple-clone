@@ -137,7 +137,6 @@ function setCanvasImages() {
     sceneInfo[3].obj.images.push(imgElem3);
   }
 }
-setCanvasImages();
 
 function checkMenu() {
   if (scrollY > 44) {
@@ -204,8 +203,8 @@ function playAnimation() {
   const scrollRatio = currentY / scrollHeight;
   switch (currentScene) {
     case 0:
-      let sequence = Math.round(calcValues(values.imageSequence, currentY));
-      obj.context.drawImage(obj.videoImages[sequence], 0, 0);
+      // let sequence = Math.round(calcValues(values.imageSequence, currentY));
+      // obj.context.drawImage(obj.videoImages[sequence], 0, 0);
       obj.canvas.style.opacity = calcValues(values.canvas_opacity, currentY);
 
       if (scrollRatio <= 0.22) {
@@ -291,8 +290,8 @@ function playAnimation() {
     // case 1:
     //   break;
     case 2:
-      let sequence2 = Math.round(calcValues(values.imageSequence, currentY));
-      obj.context.drawImage(obj.videoImages[sequence2], 0, 0);
+      // let sequence2 = Math.round(calcValues(values.imageSequence, currentY));
+      // obj.context.drawImage(obj.videoImages[sequence2], 0, 0);
 
       if (scrollRatio <= 0.5) {
         obj.canvas.style.opacity = calcValues(
@@ -550,12 +549,12 @@ function scrollLoof() {
   for (let i = 0; i < currentScene; i++) {
     prevY += sceneInfo[i].scrollHeight;
   }
-  if (y > prevY + sceneInfo[currentScene].scrollHeight) {
+  if (delayedY > prevY + sceneInfo[currentScene].scrollHeight) {
     newScene = true;
     currentScene++;
     document.body.setAttribute('id', `show--scene__${currentScene}`);
   }
-  if (y < prevY) {
+  if (delayedY < prevY) {
     newScene = true;
     if (currentScene === 0) return;
     currentScene--;
@@ -565,14 +564,53 @@ function scrollLoof() {
   playAnimation();
 }
 
+let rafId;
+let rafState;
+let delayedY = 0;
+
+function scrollSmooth() {
+  delayedY = delayedY + (y - delayedY) * 0.1;
+  const currentY = delayedY - prevY;
+  const values = sceneInfo[currentScene].values;
+  const obj = sceneInfo[currentScene].obj;
+  if (!newScene) {
+    if (currentScene === 0 || currentScene === 2) {
+      let sequence = Math.round(calcValues(values.imageSequence, currentY));
+      if (obj.videoImages[sequence]) {
+        obj.context.drawImage(obj.videoImages[sequence], 0, 0);
+      }
+    }
+  }
+
+  rafId = requestAnimationFrame(scrollSmooth);
+
+  if (Math.abs(y - delayedY) < 1) {
+    cancelAnimationFrame(rafId);
+    rafState = false;
+  }
+}
+
 window.addEventListener('scroll', () => {
   y = scrollY;
   scrollLoof();
   checkMenu();
+  if (!rafState) {
+    rafId = requestAnimationFrame(scrollSmooth);
+    rafState = true;
+  }
 });
 // window.addEventListener('DOMContentLoaded', setLayout);
 window.addEventListener('load', () => {
   setLayout();
   sceneInfo[0].obj.context.drawImage(sceneInfo[0].obj.videoImages[0], 0, 0);
 });
-window.addEventListener('resize', setLayout);
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 600) {
+    setLayout;
+  }
+  sceneInfo[3].values.rectStartY = 0;
+});
+
+window.addEventListener('orientationchange', setLayout);
+
+setCanvasImages();
